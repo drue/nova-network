@@ -19,4 +19,6 @@
 case node["quantum"]["plugin"]
 when "ovs"
 	include_recipe "nova-network::quantum-ovs-plugin"
+when "worm"
+    include_recipe "nova-network::quantum-worm-plugin"
 end

@@ -20,3 +20,7 @@ use_namespaces = <%= @quantum_namespace %>
 # OVS
 interface_driver = quantum.agent.linux.interface.OVSInterfaceDriver
 <% end %>
+
+<% if @quantum_plugin == "worm" %>
+interface_driver = quantum.agent.linux.interface.BridgeInterfaceDriver
+<% end %>

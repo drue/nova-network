@@ -50,7 +50,7 @@ ks_admin_endpoint = get_access_endpoint("keystone", "keystone", "admin-api")
 rabbit_info = get_access_endpoint("rabbitmq-server", "rabbitmq", "queue")
 api_endpoint = get_access_endpoint("nova-network-controller", "quantum", "api")
 local_ip = get_ip_for_net('nova', node)		### FIXME
-quantum_info = get_settings_by_recipe("nova-network\\:\\:nova-controller", "quantum")
+quantum_info = get_settings_by_recipe("nova-network::nova-controller", "quantum")
 
 template "/etc/quantum/api-paste.ini" do
     source "#{release}/api-paste.ini.erb"
@@ -101,7 +101,9 @@ template "/etc/quantum/plugins/openvswitch/ovs_quantum_plugin.ini" do
         "ovs_tunnel_bridge" => node["quantum"]["ovs"]["tunnel_bridge"],
         "ovs_debug" => node["quantum"]["debug"],
         "ovs_verbose" => node["quantum"]["verbose"],
-        "ovs_local_ip" => local_ip
+        "ovs_local_ip" => local_ip,
+        "ovs_bridge_mappings" => node["quantum"]["ovs"]["bridge_mappings"],
+        "ovs_vlan_ranges" => node["quantum"]["ovs"]["vlan_ranges"]
     )
     # notifies :restart, resources(:service => "quantum-server"), :immediately
     notifies :restart, resources(:service => "quantum-plugin-openvswitch-agent"), :immediately
@@ -109,8 +111,3 @@ template "/etc/quantum/plugins/openvswitch/ovs_quantum_plugin.ini" do
     notifies :restart, resources(:service => "openvswitch-switch"), :immediately
 end
 
-execute "create integration bridge" do
-    command "ovs-vsctl add-br #{node["quantum"]["ovs"]["integration_bridge"]}"
-    action :run
-    not_if "ovs-vsctl show | grep 'Bridge br-int'" ## FIXME
-end

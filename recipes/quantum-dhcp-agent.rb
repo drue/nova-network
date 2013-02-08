@@ -41,7 +41,7 @@ service "quantum-dhcp-agent" do
 end
 
 ks_admin_endpoint = get_access_endpoint("keystone", "keystone", "admin-api")
-quantum_info = get_settings_by_recipe("nova-network\\:\\:nova-controller", "quantum")
+quantum_info = get_settings_by_recipe("nova-network::nova-controller", "quantum")
 
 template "/etc/quantum/dhcp_agent.ini" do
     source "#{release}/dhcp_agent.ini.erb"

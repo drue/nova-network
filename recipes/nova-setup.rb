@@ -1,5 +1,5 @@
 # Cookbook Name:: nova-network
-# Recipe:: setup
+# Recipe:: nova-setup
 #
 # Copyright 2012, Rackspace US, Inc.
 #

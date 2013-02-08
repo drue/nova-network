@@ -9,3 +9,7 @@ root_helper = sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf
 # OVS
 interface_driver = quantum.agent.linux.interface.OVSInterfaceDriver
 <% end %>
+
+<% if @quantum_plugin == "worm" %>
+interface_driver = quantum.agent.linux.interface.BridgeInterfaceDriver
+<% end %>

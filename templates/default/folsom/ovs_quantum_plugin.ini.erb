@@ -4,11 +4,18 @@ reconnect_interval = 2
 
 [OVS]
 tenant_network_type = <%= @ovs_network_type %>
+<% if @ovs_network_type == "gre" %>
 tunnel_id_ranges = <%= @ovs_tunnel_ranges %>
 integration_bridge = <%= @ovs_integration_bridge %>
 tunnel_bridge = <%= @ovs_tunnel_bridge %>
 local_ip = <%= @ovs_local_ip %>
 enable_tunneling = <%= @ovs_enable_tunneling %>
+<% end %>
+
+<% if @ovs_network_type == "vlan" %> 
+network_vlan_ranges = <%= @ovs_vlan_ranges %>
+bridge_mappings = <%= @ovs_bridge_mappings %>
+<% end %>
 
 [AGENT]
 root_helper = sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf

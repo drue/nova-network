@@ -102,6 +102,16 @@ default["quantum"]["ovs"]["integration_bridge"] = "br-int"      # Don't change w
 default["quantum"]["ovs"]["tunnel_bridge"] = "br-tun"           # only used if tunnel_ranges is set
 default["quantum"]["ovs"]["external_bridge"] = "br-ex"
 default["quantum"]["ovs"]["external_interface"] = "eth1"
+default["quantum"]["ovs"]["bridge_mappings"] = "physnet1:br-eth1"
+default["quantum"]["ovs"]["vlan_ranges"] = "physnet1:1:4094"
+
+# WORM
+default["quantum"]["worm"]["plugin_conf"] = "/etc/quantum/plugins/worm/plugin.ini"
+default["quantum"]["worm"]["db_name"] = "quantum_linux_bridge"
+default["quantum"]["worm"]["vlan_ranges"] = "physnet1:1:4094"
+default["quantum"]["worm"]["bridge_mappings"] = "physnet1:vlab0"
+default["quantum"]["worm"]["switch_list"] = "127.0.0.1:8081"
+default["quantum"]["worm"]["external_bridge"] = ""
 
 case platform
 when "fedora", "redhat", "centos"

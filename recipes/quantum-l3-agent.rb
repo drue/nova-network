@@ -48,14 +48,16 @@ service "quantum-l3-agent" do
     action :nothing
 end
 
-execute "create external bridge" do
-	command "ovs-vsctl add-br #{node["quantum"]["ovs"]["external_bridge"]}"
+if node["quantum"]["plugin"] == "ovs"
+  execute "create external bridge" do
+    command "ovs-vsctl add-br #{node["quantum"]["ovs"]["external_bridge"]};ovs-vsctl add-port #{node["quantum"]["ovs"]["external_bridge"]} #{node["quantum"]["ovs"]["external_interface"]}"
 	action :run
 	not_if "ovs-vsctl show | grep 'Bridge br-ex'" ## FIXME
+  end
 end
 
 ks_admin_endpoint = get_access_endpoint("keystone", "keystone", "admin-api")
-quantum_info = get_settings_by_recipe("nova-network\\:\\:nova-controller", "quantum")
+quantum_info = get_settings_by_recipe("nova-network::nova-controller", "quantum")
 #metadata_ip = get_ip_for_net("nova", search(:node, "recipes:nova-network\\:\\:nova-controller AND chef_environment:#{node.chef_environment}"))
 nova_info = get_access_endpoint("nova-api-os-compute", "nova", "api")
 metadata_ip = nova_info["host"]

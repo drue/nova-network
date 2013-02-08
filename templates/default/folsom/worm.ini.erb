@@ -1,0 +1,14 @@
+###
+
+[DATABASE]
+
+sql_connection = mysql://<%= @db_user %>:<%= @db_password %>@<%= @db_ip_address %>/<%= @db_name %>
+               
+[VLANS]
+network_vlan_ranges = <%= @vlan_ranges %>
+
+[LINUX_BRIDGE]
+physical_interface_mappings = <%= @bridge_mappings %>
+
+[WORM]
+switch_list = <% @switch_list %>
