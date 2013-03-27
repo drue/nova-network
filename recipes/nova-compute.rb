@@ -18,7 +18,6 @@
 #
 
 if node["nova"]["network"]["provider"] == "quantum"
-	include_recipe "nova-network::quantum-plugin"
   	include_recipe "nova-network::quantum-l3-agent"
     include_recipe "nova-network::quantum-dhcp-agent"
     case node["quantum"]["plugin"]
