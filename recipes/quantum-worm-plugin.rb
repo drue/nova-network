@@ -2,16 +2,12 @@ include_recipe "python"
 include_recipe "osops-utils"
 include_recipe "mysql"
 include_recipe "monit"
+include_recipe "worm::egg"
 
 if not node["package_component"].nil?
   release = node["package_component"]
 else
   release = "folsom"
-end
-
-
-python_pip "/project/worm" do
-  action [:install]
 end
 
 
