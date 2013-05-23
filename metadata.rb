@@ -1,15 +1,24 @@
 maintainer        "Rackspace US, Inc."
 license           "Apache 2.0"
-description       "Installs and configures Openstack"
+description       "Installs and configures the networking required for Openstack"
 long_description  IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version           "1.0.18"
-recipe		  "network", ""
+version           "1.0.20"
+recipe            "nova-compute", ""
+recipe            "nova-controller", ""
+recipe            "nova-network", ""
+recipe            "nova-setup", ""
+recipe            "quantum-dhcp-agent", ""
+recipe            "quantum-l3-agent", ""
+recipe            "quantum-ovs-plugin", ""
+recipe            "quantum-plugin", ""
+recipe            "quantum-server", ""
 
-%w{ ubuntu fedora redhat centos }.each do |os|
-	  supports os
+%w{ centos ubuntu }.each do |os|
+  supports os
 end
 
-%w{ monitoring nova sysctl osops-utils mysql python }.each do |dep|
-	  depends dep
+%w{ mysql nova osops-utils sysctl python }.each do |dep|
+  depends dep
 end
 
+depends "keystone", ">= 1.0.20"
