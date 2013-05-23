@@ -125,8 +125,10 @@ when "fedora", "redhat", "centos"
         "quantum_packages" => [ "openstack-quantum", "python-quantumclient" ],
         "quantum_api_service" => "openstack-quantum",
         "quantum_api_process_name" => "",
-        "package_overrides" => ""
-    }
+        "package_overrides" => "",
+        "quantum_l3_packages" => ["quantum-l3-agent"],
+        "quantum_dhcp_packages" => [ "dnsmasq-base", "dnsmasq-utils", "libnetfilter-conntrack3", "quantum-dhcp-agent" ]
+       }
 when "ubuntu"
     default["nova-network"]["platform"] = {                                                   # node_attribute
         "nova_network_packages" => ["iptables", "nova-network"],
