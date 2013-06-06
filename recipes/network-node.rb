@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: nova-network
-# Recipe:: nova-compute
+# Recipe:: network-node
 #
 # Copyright 2012, Rackspace US, Inc.
 #
@@ -18,21 +18,7 @@
 #
 
 if node["nova"]["network"]["provider"] == "quantum"
-  	include_recipe "nova-network::quantum-l3-agent"
-    include_recipe "nova-network::quantum-dhcp-agent"
-    case node["quantum"]["plugin"]
-    when "ovs"
-      include_recipe "nova-network::quantum-ovs-compute"
-    when "worm"
-      include_recipe "nova-network::quantum-worm-compute"
-    end
-    include_recipe "nova-network::quantum-plugin"
-    include_recipe "sysctl::default"
-
-    sysctl 'net.ipv4.ip_forward' do
-      value '1'
-    end
-else
-  include_recipe "nova::api-metadata"
-  include_recipe "nova-network::nova-network"
+  include_recipe "nova-network::quantum-metadata-agent"
+  include_recipe "nova-network::quantum-dhcp-agent"
+  include_recipe "nova-network::quantum-plugin"
 end

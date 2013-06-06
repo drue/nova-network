@@ -17,16 +17,14 @@
 actions :create_fixed, :create_floating, :delete_fixed, :delete_floating
 
 def initialize(*args)
-    super
-    @action = :create
+  super
+  @action = :create
 end
 
 # nova-manage network create cli options
 attribute :label, :kind_of => String
-attribute :multi_host, :kind_of => [ TrueClass, FalseClass], :default => true
+attribute :multi_host, :kind_of => [TrueClass, FalseClass], :default => true
 attribute :fixed_range, :kind_of => String
-attribute :num_networks, :kind_of => [ String, Integer ]
-attribute :net_size, :kind_of => [ String, Integer ]
 attribute :bridge, :kind_of => String
 attribute :bridge_int, :kind_of => String
 attribute :dns1, :kind_of => String

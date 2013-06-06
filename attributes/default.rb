@@ -23,26 +23,22 @@ default["nova"]["network"]["provider"] = "nova"
 # ######################################################################### #
 # TODO(shep): This should probably be ['nova']['network']['fixed']
 default["nova"]["networks"] = [                                             # cluster_attribute
-{
+  {
     "label" => "public",
     "ipv4_cidr" => "192.168.100.0/24",
-    "num_networks" => 1,
-    "network_size" => 255,
     "bridge" => "br100",
     "bridge_dev" => "eth2",
     "dns1" => "8.8.8.8",
     "dns2" => "8.8.4.4"
-},
-{
+  },
+  {
     "label" => "private",
     "ipv4_cidr" => "192.168.200.0/24",
-    "num_networks" => 1,
-    "network_size" => 255,
     "bridge" => "br200",
     "bridge_dev" => "eth3",
     "dns1" => "8.8.8.8",
     "dns2" => "8.8.4.4"
-}
+  }
 ]
 
 default["nova"]["network"]["public_interface"] = "eth0"                                        # node_attribute
@@ -61,9 +57,16 @@ default["nova"]["network"]["multi_host"] = true
 # nova.conf options for quantum
 default["quantum"]["network_api_class"] = "nova.network.quantumv2.api.API"
 default["quantum"]["auth_strategy"] = "keystone"
-default["quantum"]["libvirt_vif_driver"] = "nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver"
-default["quantum"]["linuxnet_interface_driver"] = "nova.network.linux_net.LinuxOVSInterfaceDriver"
-default["quantum"]["firewall_driver"] = "nova.virt.libvirt.firewall.IptablesFirewallDriver"
+default["quantum"]["libvirt_vif_type"] = "ethernet"
+default["quantum"]["libvirt_vif_driver"] =
+  "nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver"
+default["quantum"]["linuxnet_interface_driver"] =
+  "nova.network.linux_net.LinuxOVSInterfaceDriver"
+default["quantum"]["firewall_driver"] =
+  "nova.virt.firewall.NoopFirewallDriver"
+default["quantum"]["security_group_api"] = "quantum"
+default["quantum"]["isolated_metadata"] = "True"
+default["quantum"]["service_quantum_metadata_proxy"] = "True"
 
 default["quantum"]["services"]["api"]["scheme"] = "http"
 default["quantum"]["services"]["api"]["network"] = "public"
@@ -79,10 +82,8 @@ default["quantum"]["service_role"] = "admin"
 default["quantum"]["debug"] = "False"
 default["quantum"]["verbose"] = "False"
 
-# Attention: the following parameter MUST be set to False if Quantum is
-# being used in conjunction with nova security groups and/or metadata service.
-default["quantum"]["overlap_ips"] = "False"
-default["quantum"]["use_namespaces"] = "False" # should correspond to overlap_ips used for dhcp agent and l3 agent.
+default["quantum"]["overlap_ips"] = "True"
+default["quantum"]["use_namespaces"] = "True" # should correspond to overlap_ips used for dhcp agent and l3 agent.
 
 # Manage plugins here, currently only supports openvswitch (ovs)
 default["quantum"]["plugin"] = "ovs"
@@ -93,10 +94,13 @@ default["quantum"]["l3"]["gateway_external_net_id"] = ""
 
 # Plugin defaults
 # OVS
-default["quantum"]["ovs"]["packages"] = [ "quantum-plugin-openvswitch", "quantum-plugin-openvswitch-agent" ]
+default["quantum"]["ovs"]["packages"] = [
+  "openvswitch-datapath-dkms",
+  "quantum-plugin-openvswitch",
+  "quantum-plugin-openvswitch-agent"
+]
 default["quantum"]["ovs"]["service_name"] = "quantum-plugin-openvswitch-agent"
-default["quantum"]["ovs"]["network_type"] = "gre"
-default["quantum"]["ovs"]["tunneling"] = "True"                 # Must be true if network type is GRE
+default["quantum"]["ovs"]["network_type"] = "vlan"
 default["quantum"]["ovs"]["tunnel_ranges"] = "1:1000"           # Enumerating ranges of GRE tunnel IDs that are available for tenant network allocation (if GRE)
 default["quantum"]["ovs"]["integration_bridge"] = "br-int"      # Don't change without a good reason..
 default["quantum"]["ovs"]["tunnel_bridge"] = "br-tun"           # only used if tunnel_ranges is set
@@ -129,22 +133,37 @@ when "fedora", "redhat", "centos"
         "quantum_l3_packages" => ["quantum-l3-agent"],
         "quantum_dhcp_packages" => [ "dnsmasq-base", "dnsmasq-utils", "libnetfilter-conntrack3", "quantum-dhcp-agent" ]
        }
-when "ubuntu"
-    default["nova-network"]["platform"] = {                                                   # node_attribute
-        "nova_network_packages" => ["iptables", "nova-network"],
-        "nova_network_service" => "nova-network",
-        "common_packages" => ["nova-common", "python-nova", "python-novaclient"]
-    }
-    default["quantum"]["platform"] = {
-        "mysql_python_packages" => [ "python-mysqldb" ],
-        "quantum_packages" => [ "quantum-server", "python-quantum", "quantum-common" ],
-        "quantum_dhcp_packages" => [ "dnsmasq-base", "dnsmasq-utils", "libnetfilter-conntrack3", "quantum-dhcp-agent" ],
-        "quantum_l3_packages" => ["quantum-l3-agent"],
-        "quantum_api_service" => "quantum-server",
-        "quantum-dhcp-agent" => "quantum-dhcp-agent",
-        "quantum-l3-agent" => "quantum-l3-agent",
-        "quantum_api_process_name" => "quantum-server",
-        "package_overrides" => "-o Dpkg::Options::='--force-confold' -o Dpkg::Options::='--force-confdef'"
-    }
-end
 
+  default["quantum"]["ovs"]["firewall_driver"] =
+  "quantum.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver"
+
+when "ubuntu"
+  default["nova-network"]["platform"] = {                                                   # node_attribute
+    "nova_network_packages" => ["iptables", "nova-network"],
+    "nova_network_service" => "nova-network",
+    "common_packages" => ["nova-common", "python-nova", "python-novaclient"]
+  }
+  default["quantum"]["platform"] = {
+    "mysql_python_packages" => ["python-mysqldb"],
+    "quantum_packages" => [
+      "quantum-server",
+      "python-quantum",
+      "quantum-common"
+    ],
+    "quantum_dhcp_packages" => [
+      "dnsmasq-base",
+      "dnsmasq-utils",
+      "libnetfilter-conntrack3",
+      "quantum-dhcp-agent"
+    ],
+    "quantum_l3_packages" => ["quantum-l3-agent"],
+    "quantum_api_service" => "quantum-server",
+    "quantum_metadata_packages" => ["quantum-metadata-agent"],
+    "quantum-metadata-agent" => "quantum-metadata-agent",
+    "quantum-dhcp-agent" => "quantum-dhcp-agent",
+    "quantum-l3-agent" => "quantum-l3-agent",
+    "quantum_api_process_name" => "quantum-server",
+    "package_overrides" => "-o Dpkg::Options::='--force-confold' "\
+      "-o Dpkg::Options::='--force-confdef'"
+  }
+end

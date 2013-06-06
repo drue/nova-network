@@ -11,6 +11,7 @@ core_plugin = quantum.plugins.openvswitch.ovs_quantum_plugin.OVSQuantumPluginV2
 core_plugin = worm.plugin.WormQuantumPluginV2
 <% end %>
 
+allow_overlapping_ips = <%= @overlapping_ips %>
 api_paste_config = /etc/quantum/api-paste.ini
 auth_strategy = keystone
 control_exchange = quantum
