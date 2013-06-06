@@ -4,13 +4,6 @@ include_recipe "mysql"
 include_recipe "monit"
 include_recipe "worm::egg"
 
-if not node["package_component"].nil?
-  release = node["package_component"]
-else
-  release = "folsom"
-end
-
-
 ## linux bridge specific stuff
 mysql_info = get_settings_by_role("mysql-master", "mysql")
 connection_info = {:host => mysql_info["bind_address"], :username => "root", :password => mysql_info["server_root_password"]}
@@ -39,7 +32,7 @@ local_ip = get_ip_for_net('nova', node)		### FIXME
 quantum_info = get_settings_by_recipe("nova-network::nova-controller", "quantum")
 
 template "/etc/quantum/api-paste.ini" do
-    source "#{release}/api-paste.ini.erb"
+    source "api-paste.ini.erb"
     owner "root"
     group "root"
     mode "0644"
@@ -54,7 +47,7 @@ template "/etc/quantum/api-paste.ini" do
 end
 
 template "/etc/quantum/quantum.conf" do
-  source "#{release}/quantum.conf.erb"
+  source "quantum.conf.erb"
   owner "root"
   group "root"
   mode "0644"
@@ -78,7 +71,7 @@ directory  "/etc/quantum/plugins/worm" do
 end
 
 template node["quantum"]["worm"]["plugin_conf"] do
-  source "#{release}/worm.ini.erb"
+  source "worm.ini.erb"
   owner "root"
   group "root"
   mode "0644"
@@ -95,7 +88,7 @@ template node["quantum"]["worm"]["plugin_conf"] do
 end
 
 template "/etc/default/quantum-server" do
-  source "#{release}/quantum_default.erb"
+  source "quantum_default.erb"
   variables(
             "plugin_conf" => node["quantum"]["worm"]["plugin_conf"]
             )
