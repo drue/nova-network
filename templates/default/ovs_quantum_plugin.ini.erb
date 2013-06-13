@@ -11,10 +11,13 @@ local_ip = <%= @ovs_local_ip %>
 enable_tunneling = <%= @ovs_enable_tunneling %>
 <% end %>
 
-<% if @ovs_network_type == "vlan" %> 
+<% if @ovs_network_type == "gre" %>
+enable_tunneling = True
+tunnel_bridge = <%= @ovs_tunnel_bridge %>
+tunnel_id_ranges = <%= @ovs_tunnel_ranges %>
+<% end %>
 network_vlan_ranges = <%= @ovs_vlan_ranges %>
 bridge_mappings = <%= @ovs_bridge_mappings %>
-<% end %>
 
 [SECURITYGROUP]
 firewall_driver = <%= @ovs_firewall_driver %>
